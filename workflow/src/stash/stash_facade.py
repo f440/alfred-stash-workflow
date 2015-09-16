@@ -51,7 +51,12 @@ class StashFacade(object):
         response = self._get(self._stash_url('/users/{}'.format(user_slug.lower())), params={'avatarSize': 64}).json()
         if 'avatarUrl' not in response:
             return None
-        response = self._get(response['avatarUrl'], params={}, stream=True)
+
+        if response['avatarUrl'].startswith(('https://', 'http://')):
+            response = self._get(response['avatarUrl'], params={}, stream=True)
+        else:
+            response = self._get('{}/{}'.format(self._base_url, response['avatarUrl']), params={}, stream=True)
+
         response.raw.decode_content = True
         return response.raw
 
